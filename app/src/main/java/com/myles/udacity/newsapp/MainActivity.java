@@ -4,6 +4,8 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -26,7 +28,12 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Book>> {
+    /**
+     * 地震 loader ID 的常量值。我们可选择任意整数。
+     * 仅当使用多个 loader 时该设置才起作用。
+     */
+    private static final int EARTHQUAKE_LOADER_ID = 1;
 
     private static final String BOOK_API_REQUEST_URL =
             "https://www.googleapis.com/books/v1/volumes?q=";
@@ -44,124 +51,44 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                String searchQuery = ((TextView) findViewById(R.id.text_input)).getText().toString();
-                BookAsyncTask task = new BookAsyncTask();
+                // 引用 LoaderManager，以便与 loader 进行交互。
+                LoaderManager loaderManager = getLoaderManager();
 
-                URL searchUrl = null;
-                try {
-                    searchUrl = new URL(BOOK_API_REQUEST_URL + searchQuery);
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
-
-                task.execute(searchUrl);
+                // 初始化 loader。传递上面定义的整数 ID 常量并为为捆绑
+                // 传递 null。为 LoaderCallbacks 参数（由于
+                // 此活动实现了 LoaderCallbacks 接口而有效）传递此活动。
+                loaderManager.initLoader(EARTHQUAKE_LOADER_ID, null, this);
             }
         });
 
 
     }
 
-    private class BookAsyncTask extends AsyncTask<URL, Void, List<Book>> {
-
-        @Override
-        protected List<Book> doInBackground(URL... urls) {
-            ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-            if (networkInfo == null || !networkInfo.isConnected()) {
-                return null;
-            }
-
-            URL url = urls[0];
-            String jsonResponse = "";
-            HttpURLConnection urlConnection = null;
-            InputStream inputStream = null;
-
-            try {
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.setReadTimeout(10000 /* milliseconds */);
-                urlConnection.setConnectTimeout(15000 /* milliseconds */);
-                urlConnection.connect();
-                if (urlConnection.getResponseCode() == 200) {
-                    inputStream = urlConnection.getInputStream();
-                    jsonResponse = readFromStream(inputStream);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (inputStream != null) {
-                    // function must handle java.io.IOException here
-                    try {
-                        inputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            List<Book> books = extractFeatureFromJson(jsonResponse);
-            return books;
+    @Override
+    public Loader<List<Book>> onCreateLoader(int id, Bundle args) {
+        String searchQuery = ((TextView) findViewById(R.id.text_input)).getText().toString();
+        URL searchUrl = null;
+        try {
+            searchUrl = new URL(BOOK_API_REQUEST_URL + searchQuery);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
         }
 
-        @Override
-        protected void onPostExecute(List<Book> books) {
-            if (books == null) {
-                return;
-            }
-            BookAdapter adapter = new BookAdapter(MainActivity.this, books);
-            ((ListView) findViewById(R.id.list)).setAdapter(adapter);
+        // 为给定 URL 创建新 loader
+        return new BookAsyncTaskLoader(this, searchUrl);
+    }
 
+    @Override
+    public void onLoadFinished(Loader<List<Book>> loader, List<Book> books) {
+        if (books == null) {
+            return;
         }
+        BookAdapter adapter = new BookAdapter(MainActivity.this, books);
+        ((ListView) findViewById(R.id.list)).setAdapter(adapter);
+    }
 
-        private String readFromStream(InputStream inputStream) throws IOException {
-            StringBuilder output = new StringBuilder();
-            if (inputStream != null) {
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
-                BufferedReader reader = new BufferedReader(inputStreamReader);
-                String line = reader.readLine();
-                while (line != null) {
-                    output.append(line);
-                    line = reader.readLine();
-                }
-            }
-            return output.toString();
-        }
-
-        private List<Book> extractFeatureFromJson(String json) {
-            ArrayList<Book> books = new ArrayList<Book>();
-            try {
-                JSONObject baseJsonResponse = new JSONObject(json);
-                JSONArray featureArray = baseJsonResponse.getJSONArray("items");
-
-                // If there are results in the features array
-                for (int i = 0; i < featureArray.length(); i++) {
-                    JSONObject firstFeature = featureArray.getJSONObject(i);
-                    JSONObject properties = firstFeature.getJSONObject("volumeInfo");
-
-                    String title = properties.getString("title");
-                    String publisher = properties.getString("publisher");
-                    JSONArray authorList = properties.getJSONArray("authors");
-                    ArrayList<String> authors = new ArrayList<String>();
-                    for (int j = 0; j < authorList.length(); j++) {
-                        authors.add(authorList.getString(j));
-                    }
-                    String date = properties.getString("publishedDate");
-
-                    Book book = new Book();
-                    book.setTitle(title);
-                    book.setPublisher(publisher);
-                    book.setPublishDate(date);
-                    book.setAuthors(authors.toArray(new String[]{}));
-                    books.add(book);
-                }
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return books;
-        }
+    @Override
+    public void onLoaderReset(Loader<List<Book>> loader) {
+        // empty the list in main activity
     }
 }
