@@ -36,7 +36,6 @@ public class BookAsyncTaskLoader extends AsyncTaskLoader<List<Book>> {
 
     @Override
     public List<Book> loadInBackground() {
-        Log.v("MylesDebug", "BookAsyncTaskLoader-loadInBackground");
         ConnectivityManager connectivityManager = (ConnectivityManager)this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         if (networkInfo == null || !networkInfo.isConnected()) {
@@ -80,7 +79,6 @@ public class BookAsyncTaskLoader extends AsyncTaskLoader<List<Book>> {
 
     @Override
     protected void onStartLoading() {
-        Log.v("MylesDebug", "BookAsyncTaskLoader-onStartLoading");
         this.forceLoad();
     }
 
@@ -113,27 +111,17 @@ public class BookAsyncTaskLoader extends AsyncTaskLoader<List<Book>> {
         ArrayList<Book> books = new ArrayList<Book>();
         try {
             JSONObject baseJsonResponse = new JSONObject(json);
-            JSONArray featureArray = baseJsonResponse.getJSONArray("items");
+            JSONArray featureArray = baseJsonResponse.getJSONObject("response").getJSONArray("results");
 
             // If there are results in the features array
             for (int i = 0; i < featureArray.length(); i++) {
-                JSONObject firstFeature = featureArray.getJSONObject(i);
-                JSONObject properties = firstFeature.getJSONObject("volumeInfo");
-
-                String title = properties.getString("title");
-                String publisher = properties.getString("publisher");
-                JSONArray authorList = properties.getJSONArray("authors");
-                ArrayList<String> authors = new ArrayList<String>();
-                for (int j = 0; j < authorList.length(); j++) {
-                    authors.add(authorList.getString(j));
-                }
-                String date = properties.getString("publishedDate");
+                JSONObject properties = featureArray.getJSONObject(i);
+                String title = properties.getString("webTitle");
+                String publisher = properties.getString("sectionName");
 
                 Book book = new Book();
                 book.setTitle(title);
                 book.setPublisher(publisher);
-                book.setPublishDate(date);
-                book.setAuthors(authors.toArray(new String[]{}));
                 books.add(book);
             }
 

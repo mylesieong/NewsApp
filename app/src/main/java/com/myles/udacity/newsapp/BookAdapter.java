@@ -33,13 +33,6 @@ public class BookAdapter extends ArrayAdapter<Book> {
 
         ((TextView) listItemView.findViewById(R.id.text_title)).setText(currentBook.getTitle());
         ((TextView) listItemView.findViewById(R.id.text_publisher)).setText(currentBook.getPublisher());
-        ((TextView) listItemView.findViewById(R.id.text_publish_date)).setText(currentBook.getPublishDate());
-        StringBuilder authorsBuilder = new StringBuilder();
-        for (int i = 0; i < currentBook.getAuthors().length; i++) {
-            authorsBuilder.append(currentBook.getAuthors()[i]);
-            authorsBuilder.append(" ");
-        }
-        ((TextView) listItemView.findViewById(R.id.text_authors)).setText(authorsBuilder.toString());
 
         return listItemView;
     }
