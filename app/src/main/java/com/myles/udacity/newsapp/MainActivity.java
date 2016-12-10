@@ -4,6 +4,7 @@ import android.app.LoaderManager;
 import android.content.Intent;
 import android.content.Loader;
 import android.net.Uri;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,7 +22,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private static final int NEWS_LOADER_ID = 1;
 
     private static final String NEWS_API_REQUEST_URL =
-            "http://content.guardianapis.com/search?q=news&api-key=test";
+            "http://content.guardianapis.com/search?q=news&order-by=newest&api-key=test";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         ((ListView) this.findViewById(R.id.list)).setEmptyView((TextView) findViewById(R.id.empty_view));
 
-        LoaderManager loaderManager = getLoaderManager();
+        final LoaderManager loaderManager = getLoaderManager();
         loaderManager.initLoader(NEWS_LOADER_ID, null, MainActivity.this);
 
         ((ListView) this.findViewById(R.id.list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -43,11 +44,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         });
 
+        ((SwipeRefreshLayout)this.findViewById(R.id.swiperefresh)).setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Log.v("MylesDebug", "onRefresh called from SwipeRefreshLayout");
+                loaderManager.getLoader(NEWS_LOADER_ID).forceLoad();
+            }
+        });
+
     }
 
     @Override
     public Loader<List<News>> onCreateLoader(int id, Bundle args) {
-        Log.v("MylesDebug", "onCreateLodaer");
+        Log.v("MylesDebug", "onCreateLoader");
         URL searchUrl = null;
         try {
             searchUrl = new URL(NEWS_API_REQUEST_URL);
@@ -61,17 +70,20 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(Loader<List<News>> loader, List<News> newses) {
-        Log.v("MylesDebug", "onLoadFinish");
+        Log.v("MylesDebug", "onLoadFinished");
         if (newses == null) {
             return;
         }
         NewsAdapter adapter = new NewsAdapter(MainActivity.this, newses);
         ((ListView) findViewById(R.id.list)).setAdapter(adapter);
+        if(((SwipeRefreshLayout)findViewById(R.id.swiperefresh)).isRefreshing()){
+            ((SwipeRefreshLayout)findViewById(R.id.swiperefresh)).setRefreshing(false);
+        }
     }
 
     @Override
     public void onLoaderReset(Loader<List<News>> loader) {
-        Log.v("MylesDebug", "onReseLoader");
+        Log.v("MylesDebug", "onResetLoader");
         // empty the list in main activity
     }
 }
