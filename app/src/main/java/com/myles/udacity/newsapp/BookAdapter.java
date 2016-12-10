@@ -32,7 +32,7 @@ public class BookAdapter extends ArrayAdapter<Book> {
         Book currentBook = this.getItem(position);
 
         ((TextView) listItemView.findViewById(R.id.text_title)).setText(currentBook.getTitle());
-        ((TextView) listItemView.findViewById(R.id.text_publisher)).setText(currentBook.getPublisher());
+        ((TextView) listItemView.findViewById(R.id.text_section)).setText(currentBook.getPublisher());
 
         return listItemView;
     }

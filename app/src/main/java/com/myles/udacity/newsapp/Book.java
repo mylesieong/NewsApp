@@ -8,23 +8,11 @@ import java.util.Date;
 
 public class Book {
     private String mTitle;
-    private String[] mAuthors;
     private String mPublisher;
-    private String mPublishDate;
+    private String mURL;
 
     public Book() {
         super();
-    }
-
-    public Book(String title) {
-        this.mTitle = title;
-    }
-
-    public Book(String title, String[] authors, String publisher, String publishDate) {
-        this.mTitle = title;
-        this.mAuthors = authors;
-        this.mPublisher = publisher;
-        this.mPublishDate = publishDate;
     }
 
     /**
@@ -34,16 +22,12 @@ public class Book {
         this.mTitle = title;
     }
 
-    public void setAuthors(String[] authors) {
-        this.mAuthors = authors;
-    }
-
     public void setPublisher(String publisher) {
         this.mPublisher = publisher;
     }
 
-    public void setPublishDate(String publishDate) {
-        this.mPublishDate = publishDate;
+    public void setURL(String url) {
+        this.mURL = url;
     }
 
     /**
@@ -53,16 +37,12 @@ public class Book {
         return this.mTitle;
     }
 
-    public String[] getAuthors() {
-        return this.mAuthors;
-    }
-
     public String getPublisher() {
         return this.mPublisher;
     }
 
-    public String getPublishDate() {
-        return this.mPublishDate;
+    public String getURL() {
+        return this.mURL;
     }
 
     @Override
@@ -71,13 +51,9 @@ public class Book {
         sb.append(this.getClass().toString());
         sb.append(this.mTitle);
         sb.append("/");
-        for (int i = 0; i < this.mAuthors.length; i++) {
-            sb.append(this.mAuthors[i]);
-            sb.append("/");
-        }
         sb.append(this.mPublisher);
         sb.append("/");
-        sb.append(this.mPublishDate);
+        sb.append(this.mURL);
         sb.append("#");
         return sb.toString();
     }

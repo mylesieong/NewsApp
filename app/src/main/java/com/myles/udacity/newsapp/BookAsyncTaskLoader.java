@@ -118,10 +118,12 @@ public class BookAsyncTaskLoader extends AsyncTaskLoader<List<Book>> {
                 JSONObject properties = featureArray.getJSONObject(i);
                 String title = properties.getString("webTitle");
                 String publisher = properties.getString("sectionName");
+                String url = properties.getString("webUrl");
 
                 Book book = new Book();
                 book.setTitle(title);
                 book.setPublisher(publisher);
+                book.setURL(url);
                 books.add(book);
             }
 
