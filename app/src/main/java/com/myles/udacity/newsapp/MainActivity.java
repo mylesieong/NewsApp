@@ -16,7 +16,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Book>> {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<News>> {
 
     private static final int NEWS_LOADER_ID = 1;
 
@@ -36,7 +36,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         ((ListView) this.findViewById(R.id.list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Log.v("MylesDebug", ((TextView)view.findViewById(R.id.text_title)).getText().toString());
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(((TextView)view.findViewById(R.id.text_url)).getText().toString()));
                 if (intent.resolveActivity(getPackageManager()) != null) {
                     startActivity(intent);
@@ -47,7 +46,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     @Override
-    public Loader<List<Book>> onCreateLoader(int id, Bundle args) {
+    public Loader<List<News>> onCreateLoader(int id, Bundle args) {
+        Log.v("MylesDebug", "onCreateLodaer");
         URL searchUrl = null;
         try {
             searchUrl = new URL(NEWS_API_REQUEST_URL);
@@ -56,20 +56,22 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
 
         // 为给定 URL 创建新 loader
-        return new BookAsyncTaskLoader(this, searchUrl);
+        return new NewsAsyncTaskLoader(this, searchUrl);
     }
 
     @Override
-    public void onLoadFinished(Loader<List<Book>> loader, List<Book> books) {
-        if (books == null) {
+    public void onLoadFinished(Loader<List<News>> loader, List<News> newses) {
+        Log.v("MylesDebug", "onLoadFinish");
+        if (newses == null) {
             return;
         }
-        BookAdapter adapter = new BookAdapter(MainActivity.this, books);
+        NewsAdapter adapter = new NewsAdapter(MainActivity.this, newses);
         ((ListView) findViewById(R.id.list)).setAdapter(adapter);
     }
 
     @Override
-    public void onLoaderReset(Loader<List<Book>> loader) {
+    public void onLoaderReset(Loader<List<News>> loader) {
+        Log.v("MylesDebug", "onReseLoader");
         // empty the list in main activity
     }
 }

@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -25,17 +24,18 @@ import java.util.List;
  * Created by asus on 9/12/2016.
  */
 
-public class BookAsyncTaskLoader extends AsyncTaskLoader<List<Book>> {
+public class NewsAsyncTaskLoader extends AsyncTaskLoader<List<News>> {
 
     private URL mURL;
 
-    public BookAsyncTaskLoader(Context context, URL url){
+    public NewsAsyncTaskLoader(Context context, URL url){
         super(context);
         this.mURL = url;
     }
 
     @Override
-    public List<Book> loadInBackground() {
+    public List<News> loadInBackground() {
+        Log.v("MylesDebug", "Loader- loadInBackground");
         ConnectivityManager connectivityManager = (ConnectivityManager)this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         if (networkInfo == null || !networkInfo.isConnected()) {
@@ -73,12 +73,13 @@ public class BookAsyncTaskLoader extends AsyncTaskLoader<List<Book>> {
             }
         }
 
-        List<Book> books = extractFeatureFromJson(jsonResponse);
-        return books;
+        List<News> newses = extractFeatureFromJson(jsonResponse);
+        return newses;
     }
 
     @Override
     protected void onStartLoading() {
+        Log.v("MylesDebug", "Loader: onStartloading");
         this.forceLoad();
     }
 
@@ -107,8 +108,8 @@ public class BookAsyncTaskLoader extends AsyncTaskLoader<List<Book>> {
      * @param json
      * @return
      */
-    private List<Book> extractFeatureFromJson(String json) {
-        ArrayList<Book> books = new ArrayList<Book>();
+    private List<News> extractFeatureFromJson(String json) {
+        ArrayList<News> newses = new ArrayList<News>();
         try {
             JSONObject baseJsonResponse = new JSONObject(json);
             JSONArray featureArray = baseJsonResponse.getJSONObject("response").getJSONArray("results");
@@ -120,16 +121,16 @@ public class BookAsyncTaskLoader extends AsyncTaskLoader<List<Book>> {
                 String publisher = properties.getString("sectionName");
                 String url = properties.getString("webUrl");
 
-                Book book = new Book();
-                book.setTitle(title);
-                book.setPublisher(publisher);
-                book.setURL(url);
-                books.add(book);
+                News news = new News();
+                news.setTitle(title);
+                news.setPublisher(publisher);
+                news.setURL(url);
+                newses.add(news);
             }
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return books;
+        return newses;
     }
 }

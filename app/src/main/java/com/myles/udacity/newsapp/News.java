@@ -6,12 +6,12 @@ import java.util.Date;
  * Created by asus on 5/12/2016.
  */
 
-public class Book {
+public class News {
     private String mTitle;
     private String mPublisher;
     private String mURL;
 
-    public Book() {
+    public News() {
         super();
     }
 
