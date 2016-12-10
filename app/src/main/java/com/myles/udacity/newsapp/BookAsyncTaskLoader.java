@@ -4,6 +4,7 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,6 +36,7 @@ public class BookAsyncTaskLoader extends AsyncTaskLoader<List<Book>> {
 
     @Override
     public List<Book> loadInBackground() {
+        Log.v("MylesDebug", "BookAsyncTaskLoader-loadInBackground");
         ConnectivityManager connectivityManager = (ConnectivityManager)this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         if (networkInfo == null || !networkInfo.isConnected()) {
@@ -78,6 +80,7 @@ public class BookAsyncTaskLoader extends AsyncTaskLoader<List<Book>> {
 
     @Override
     protected void onStartLoading() {
+        Log.v("MylesDebug", "BookAsyncTaskLoader-onStartLoading");
         this.forceLoad();
     }
 
