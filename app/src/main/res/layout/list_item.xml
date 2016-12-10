@@ -30,8 +30,13 @@
         android:paddingLeft="16dp"
         android:fontFamily="sans-serif-medium"
         android:maxLines="2"
-
         android:textColor="@android:color/holo_orange_dark"
         android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/text_url"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
 
 </LinearLayout>

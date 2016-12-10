@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Log.v("MylesDebug", ((TextView)view.findViewById(R.id.text_title)).getText().toString());
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(NEWS_API_REQUEST_URL));
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(((TextView)view.findViewById(R.id.text_url)).getText().toString()));
                 if (intent.resolveActivity(getPackageManager()) != null) {
                     startActivity(intent);
                 }
